@@ -2,7 +2,7 @@ services:
   - type: web
     name: jb-consulenti
     runtime: python
-    region: frankfurt
+    region: oregon
     plan: free
     buildCommand: pip install -r requirements.txt && cd backend && alembic upgrade head && python create_admin.py
     startCommand: cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
