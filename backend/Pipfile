@@ -12,6 +12,7 @@ psycopg2-binary = "*"
 sqlalchemy = "*"
 alembic = "*"
 email-validator = "*"
+python-multipart = "*"
 
 [dev-packages]
 

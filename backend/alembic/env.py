@@ -12,8 +12,10 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from app.database import Base
 
 # IMPORT FONDAMENTALI: registrano i modelli nel metadata
-from app.models.cliente_sql import Cliente  # noqa: F401
-from app.models.user_sql import User        # noqa: F401
+from app.models.cliente_sql import Cliente    # noqa: F401
+from app.models.user_sql import User          # noqa: F401
+from app.models.impianto_sql import Impianto  # noqa: F401
+from app.models.tag_sql import Tag            # noqa: F401
 
 config = context.config
 

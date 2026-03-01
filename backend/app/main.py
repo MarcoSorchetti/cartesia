@@ -1,8 +1,8 @@
 """
 ================================================================================
-JB Consulenti Gestionale - Backend API
+Cartesia - Backend API
 File: main.py
-Versione: 0.1.0
+Versione: 1.0.1
 Autore: Team Gia.Mar Srl
 Responsabile Progetto
 Marco Sorchetti
@@ -32,6 +32,7 @@ from fastapi.staticfiles import StaticFiles
 from app.routers import hello
 from app.routers.cliente import router as cliente_route
 from app.routers.auth import router as auth_router
+from app.routers.impianto import router as impianto_router, tag_router
 from app.api.v1.endpoints import users as users_router
 
 # Database
@@ -42,9 +43,9 @@ from app.database import Base, engine
 # Inizializzazione applicazione
 # ------------------------------------------------------------------------------
 app = FastAPI(
-    title="JB Consulenti Gestionale API",
-    version="0.1.0",
-    description="Backend API per la piattaforma gestionale JB Consulenti"
+    title="Cartesia API",
+    version="1.0.1",
+    description="Backend API — Gestione Cartelli Fisici e Digitali"
 )
 
 
@@ -69,6 +70,8 @@ app.include_router(hello.router, prefix="/api")
 app.include_router(cliente_route, prefix="/api")
 app.include_router(auth_router, prefix="/api")
 app.include_router(users_router.router, prefix="/api")
+app.include_router(impianto_router, prefix="/api")
+app.include_router(tag_router, prefix="/api")
 
 
 # ------------------------------------------------------------------------------
@@ -89,6 +92,11 @@ def health_check():
 # ------------------------------------------------------------------------------
 # Servire Frontend come file statici
 # ------------------------------------------------------------------------------
+# Servire file uploads (foto impianti, ecc.)
+uploads_dir = os.path.join(os.path.dirname(__file__), "../../uploads")
+os.makedirs(uploads_dir, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=uploads_dir), name="uploads")
+
 # IMPORTANTE: il mount statico va DOPO i router API, così le rotte API hanno priorità
 frontend_dir = os.path.join(os.path.dirname(__file__), "../../frontend")
 if os.path.isdir(frontend_dir):

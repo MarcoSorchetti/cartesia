@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>JB Consulenti - Gestionale</title>
+  <title>Cartesia — Gestione Cartelli Fisici e Digitali</title>
 
 
   <!-- Bootstrap -->
@@ -58,8 +58,9 @@
     <!-- SIDEBAR -->
     <aside id="app-sidebar" class="bg-black text-light p-3 d-flex flex-column" style="width:260px;">
       <div class="text-center mb-4">
-        <img src="assets/Logo-Azienda.png" style="height:60px;" alt="Logo" />
-        <div class="app-version">v0.1.0</div>
+        <img src="assets/Logo-Sidebar.png" style="height:70px;" alt="Logo" />
+        <div class="sidebar-app-name">Cartesia</div>
+        <div class="app-version">v1.0.1</div>
       </div>
 
 
@@ -85,8 +86,8 @@
         </button>
 
 
-        <button class="btn btn-dark text-start sidebar-link disabled" type="button">
-          <i class="fa-solid fa-gear me-2"></i> Impianti / Contratti (prossimamente)
+        <button id="menu-impianti" class="btn btn-dark text-start sidebar-link" type="button">
+          <i class="fa-solid fa-sign-hanging me-2"></i> Gestione Impianti
         </button>
       </nav>
 
@@ -369,6 +370,305 @@
 
 
     </div>
+  </template>
+
+
+  <!-- ========================================================= -->
+  <!-- TEMPLATE IMPIANTI OOH — ELENCO (full-width) -->
+  <!-- ========================================================= -->
+  <template id="template-impianti">
+
+    <div class="module-header mb-3">
+      <div>
+        <h2 class="module-title mb-1">Gestione Impianti Pubblicitari</h2>
+        <div class="module-subtitle">
+          Database impianti pubblicitari · Ricerca avanzata · Tags
+        </div>
+      </div>
+    </div>
+
+    <div class="card dark-card">
+      <div class="card-header dark-card-header d-flex align-items-center justify-content-between">
+        <h5 class="mb-0">Elenco Impianti</h5>
+        <button id="btn-nuovo-impianto" type="button" class="btn btn-sm btn-primary">
+          <i class="fa-solid fa-plus me-2"></i> Nuovo Impianto
+        </button>
+      </div>
+
+      <div class="card-body dark-card-body">
+
+        <!-- Barra filtri avanzati -->
+        <div class="row g-2 mb-3">
+          <div class="col-md-3">
+            <input type="text" id="filtro-impianti" class="form-control dark-input"
+                   placeholder="Cerca per nome, codice..." />
+          </div>
+          <div class="col-md-2">
+            <select id="filtro-tipo" class="form-select dark-input">
+              <option value="">Tutti i tipi</option>
+              <option value="billboard">Billboard</option>
+              <option value="poster">Poster</option>
+              <option value="digital_screen">Digitale</option>
+              <option value="pensilina">Pensilina</option>
+              <option value="arredo_urbano">Arredo Urbano</option>
+              <option value="altro">Altro</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <input type="text" id="filtro-citta-imp" class="form-control dark-input"
+                   placeholder="Citta'..." />
+          </div>
+          <div class="col-md-2">
+            <select id="filtro-stato-imp" class="form-select dark-input">
+              <option value="">Tutti gli stati</option>
+              <option value="attivo">Attivo</option>
+              <option value="temp_offline">Temp. Offline</option>
+              <option value="dismesso">Dismesso</option>
+            </select>
+          </div>
+          <div class="col-md-1">
+            <button id="btn-applica-filtri" class="btn btn-sm btn-outline-info w-100 h-100" type="button">
+              <i class="fa-solid fa-filter"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Barra tags cliccabili -->
+        <div id="tag-filter-bar" class="mb-3 d-flex flex-wrap gap-1"></div>
+
+        <!-- Tabella full-width -->
+        <div class="table-responsive">
+          <table class="table dark-table align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Codice</th>
+                <th>Nome</th>
+                <th>Tipo</th>
+                <th>Citta'</th>
+                <th>Concessionario</th>
+                <th>Stato</th>
+                <th>Tags</th>
+                <th class="text-center">Foto</th>
+                <th class="text-center">Azioni</th>
+              </tr>
+            </thead>
+            <tbody id="impianti-tbody">
+              <tr>
+                <td colspan="9" class="text-center text-secondary">Caricamento impianti...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+  </template>
+
+
+  <!-- ========================================================= -->
+  <!-- TEMPLATE FORM IMPIANTO — PAGINA DEDICATA (full-width) -->
+  <!-- ========================================================= -->
+  <template id="template-impianto-form">
+
+    <div class="module-header mb-3 d-flex align-items-center justify-content-between">
+      <div>
+        <h2 class="module-title mb-1" id="form-impianto-titolo">Nuovo Impianto</h2>
+        <div class="module-subtitle">Compila tutti i campi e carica le foto dell'impianto</div>
+      </div>
+      <button type="button" id="btn-torna-elenco" class="btn btn-outline-secondary">
+        <i class="fa-solid fa-arrow-left me-2"></i> Torna all'elenco
+      </button>
+    </div>
+
+    <form id="impianto-form">
+      <div class="row g-4">
+
+        <!-- COLONNA SINISTRA: Dati principali -->
+        <div class="col-lg-6">
+          <div class="card dark-card">
+            <div class="card-header dark-card-header">
+              <h5 class="mb-0"><i class="fa-solid fa-circle-info me-2"></i>Dati Impianto</h5>
+            </div>
+            <div class="card-body dark-card-body">
+
+              <div class="row g-2">
+                <div class="col-md-4">
+                  <label class="form-label small text-secondary">Codice *</label>
+                  <input class="form-control dark-input" id="imp-codice" placeholder="Es. IMP-MI-001" required />
+                </div>
+                <div class="col-md-8">
+                  <label class="form-label small text-secondary">Nome *</label>
+                  <input class="form-control dark-input" id="imp-nome" placeholder="Nome descrittivo" required />
+                </div>
+              </div>
+
+              <div class="row g-2 mt-1">
+                <div class="col-md-4">
+                  <label class="form-label small text-secondary">Tipo *</label>
+                  <select class="form-select dark-input" id="imp-tipo" required>
+                    <option value="">Seleziona...</option>
+                    <option value="billboard">Billboard</option>
+                    <option value="poster">Poster</option>
+                    <option value="digital_screen">Digitale</option>
+                    <option value="pensilina">Pensilina</option>
+                    <option value="arredo_urbano">Arredo Urbano</option>
+                    <option value="altro">Altro</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small text-secondary">Formato</label>
+                  <input class="form-control dark-input" id="imp-formato" placeholder="Es. 6x3m" />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small text-secondary">N. Facce</label>
+                  <input class="form-control dark-input" id="imp-facce" type="number" min="1" value="1" />
+                </div>
+              </div>
+
+              <div class="mt-3">
+                <label class="form-label small text-secondary">Indirizzo</label>
+                <input class="form-control dark-input" id="imp-indirizzo" placeholder="Via / Piazza" />
+              </div>
+
+              <div class="row g-2 mt-1">
+                <div class="col-md-2">
+                  <label class="form-label small text-secondary">CAP</label>
+                  <input class="form-control dark-input" id="imp-cap" placeholder="CAP" />
+                </div>
+                <div class="col-md-5">
+                  <label class="form-label small text-secondary">Citta' *</label>
+                  <input class="form-control dark-input" id="imp-citta" placeholder="Citta'" required />
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label small text-secondary">Prov.</label>
+                  <input class="form-control dark-input" id="imp-provincia" placeholder="MI" maxlength="5" />
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small text-secondary">Stato</label>
+                  <select class="form-select dark-input" id="imp-stato">
+                    <option value="attivo">Attivo</option>
+                    <option value="temp_offline">Temp. Offline</option>
+                    <option value="dismesso">Dismesso</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="mt-3">
+                <label class="form-label small text-secondary">Operatore / Concessionario</label>
+                <input class="form-control dark-input" id="imp-concessionario" placeholder="Es. Clear Channel, IGPDecaux..." />
+              </div>
+
+              <div class="row g-2 mt-1">
+                <div class="col-md-6">
+                  <label class="form-label small text-secondary">Latitudine</label>
+                  <input class="form-control dark-input" id="imp-lat" type="number" step="any" placeholder="Es. 45.4642" />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small text-secondary">Longitudine</label>
+                  <input class="form-control dark-input" id="imp-lon" type="number" step="any" placeholder="Es. 9.1900" />
+                </div>
+              </div>
+
+              <div class="d-flex gap-4 mt-3">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="imp-illuminato" />
+                  <label class="form-check-label" for="imp-illuminato">Illuminato</label>
+                </div>
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="imp-digitale" />
+                  <label class="form-check-label" for="imp-digitale">Digitale</label>
+                </div>
+              </div>
+
+              <div class="mt-3">
+                <label class="form-label small text-secondary">Note</label>
+                <textarea class="form-control dark-input" id="imp-note" rows="3" placeholder="Note aggiuntive..."></textarea>
+              </div>
+
+              <!-- Tags -->
+              <div class="mt-3">
+                <label class="form-label small text-secondary">Tags</label>
+                <div id="imp-tags-container" class="d-flex flex-wrap gap-1"></div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- COLONNA DESTRA: Foto -->
+        <div class="col-lg-6">
+          <div class="card dark-card">
+            <div class="card-header dark-card-header">
+              <h5 class="mb-0"><i class="fa-solid fa-camera me-2"></i>Foto Impianto</h5>
+            </div>
+            <div class="card-body dark-card-body">
+
+              <div class="row g-3">
+                <!-- Foto Giorno -->
+                <div class="col-md-6">
+                  <div class="foto-upload-box" id="foto-giorno-box">
+                    <label class="form-label small text-secondary">Foto Giorno</label>
+                    <div class="foto-preview" id="foto-giorno-preview">
+                      <i class="fa-solid fa-sun fa-2x text-secondary"></i>
+                      <span class="small text-secondary mt-1">Clicca per caricare</span>
+                    </div>
+                    <input type="file" id="foto-giorno-input" accept=".jpg,.jpeg,.png,.pdf" style="display:none;" />
+                  </div>
+                </div>
+
+                <!-- Foto Notte -->
+                <div class="col-md-6">
+                  <div class="foto-upload-box" id="foto-notte-box">
+                    <label class="form-label small text-secondary">Foto Notte</label>
+                    <div class="foto-preview" id="foto-notte-preview">
+                      <i class="fa-solid fa-moon fa-2x text-secondary"></i>
+                      <span class="small text-secondary mt-1">Clicca per caricare</span>
+                    </div>
+                    <input type="file" id="foto-notte-input" accept=".jpg,.jpeg,.png,.pdf" style="display:none;" />
+                  </div>
+                </div>
+
+                <!-- Foto Vista Frontale -->
+                <div class="col-md-6">
+                  <div class="foto-upload-box" id="foto-frontale-box">
+                    <label class="form-label small text-secondary">Vista Frontale</label>
+                    <div class="foto-preview" id="foto-frontale-preview">
+                      <i class="fa-solid fa-image fa-2x text-secondary"></i>
+                      <span class="small text-secondary mt-1">Clicca per caricare</span>
+                    </div>
+                    <input type="file" id="foto-frontale-input" accept=".jpg,.jpeg,.png,.pdf" style="display:none;" />
+                  </div>
+                </div>
+
+                <!-- Foto Contesto Urbano -->
+                <div class="col-md-6">
+                  <div class="foto-upload-box" id="foto-contesto-box">
+                    <label class="form-label small text-secondary">Contesto Urbano</label>
+                    <div class="foto-preview" id="foto-contesto-preview">
+                      <i class="fa-solid fa-city fa-2x text-secondary"></i>
+                      <span class="small text-secondary mt-1">Clicca per caricare</span>
+                    </div>
+                    <input type="file" id="foto-contesto-input" accept=".jpg,.jpeg,.png,.pdf" style="display:none;" />
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Bottoni Salva -->
+          <div class="d-flex gap-2 mt-3">
+            <button type="submit" id="imp-salva-btn" class="btn btn-success flex-grow-1 btn-lg">
+              <i class="fa-solid fa-floppy-disk me-2"></i> Salva Impianto
+            </button>
+            <button type="button" id="annulla-btn-impianto" class="btn btn-outline-secondary btn-lg">
+              <i class="fa-solid fa-xmark me-2"></i> Annulla
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </form>
   </template>
 
 
