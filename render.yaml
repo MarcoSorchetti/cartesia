@@ -19,5 +19,5 @@ services:
 
 databases:
   - name: jb-db
-    plan: free
+    plan: starter
     region: frankfurt
