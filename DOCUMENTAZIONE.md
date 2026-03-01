@@ -261,7 +261,28 @@ cartesia/
 - PostgreSQL installato e attivo
 - Pipenv (`pip install pipenv`)
 
-### Database locale
+### Servizi da avviare in locale
+
+Per far funzionare la piattaforma in locale sono necessari **2 servizi**:
+
+| # | Servizio | Porta | Stato richiesto |
+|---|----------|-------|-----------------|
+| 1 | **PostgreSQL** | 5432 | Deve essere attivo prima di tutto |
+| 2 | **Backend FastAPI (Uvicorn)** | 8002 | Si avvia manualmente |
+
+> **Nota:** Il frontend non richiede un server separato — viene servito direttamente dal backend FastAPI.
+
+### Passo 1 — Avviare PostgreSQL
+
+```bash
+# Verificare se PostgreSQL e' attivo
+brew services list | grep postgresql
+
+# Se non e' attivo, avviarlo
+brew services start postgresql@14
+```
+
+### Passo 2 — Verificare il database
 
 | Parametro | Valore |
 |-----------|--------|
@@ -269,12 +290,44 @@ cartesia/
 | **Utente** | `jb_user` |
 | **Password** | `password_sicura` |
 | **Host** | `localhost` |
+| **Porta** | `5432` |
 
-### Avvio del server
+```bash
+# Verificare che il database esista
+psql -U jb_user -d jb_consulenti_db -c "SELECT 1;"
+```
+
+### Passo 3 — Avviare il Backend
 
 ```bash
 cd ~/jb-consulenti/backend
 /Users/marcos.orchetti/.local/share/virtualenvs/backend-HbhTxEWn/bin/uvicorn app.main:app --host 127.0.0.1 --port 8002 --reload
+```
+
+Se il server parte correttamente, vedrai nel terminale:
+```
+INFO:     Uvicorn running on http://127.0.0.1:8002 (Press CTRL+C to quit)
+INFO:     Started reloader process [...] using StatReload
+```
+
+### Procedura completa di avvio (copia-incolla)
+
+```bash
+# 1. Avvia PostgreSQL (se non gia' attivo)
+brew services start postgresql@14
+
+# 2. Avvia il backend
+cd ~/jb-consulenti/backend
+/Users/marcos.orchetti/.local/share/virtualenvs/backend-HbhTxEWn/bin/uvicorn app.main:app --host 127.0.0.1 --port 8002 --reload
+```
+
+### Spegnimento
+
+```bash
+# Fermare il backend: premi CTRL+C nel terminale dove e' in esecuzione
+
+# Fermare PostgreSQL (opzionale)
+brew services stop postgresql@14
 ```
 
 ### Accesso locale
