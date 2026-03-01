@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JB Consulenti - Gestionale</title>
+
+
+  <!-- Bootstrap -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+
+
+  <!-- Font Awesome -->
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    rel="stylesheet"
+  />
+
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+
+<body class="bg-dark text-light">
+
+  <!-- TOAST CONTAINER -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- MODAL CONFERMA -->
+  <div id="confirm-overlay" class="confirm-overlay" style="display:none;">
+    <div class="confirm-box">
+      <div class="confirm-icon">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <p id="confirm-message" class="confirm-message">Sei sicuro?</p>
+      <div class="confirm-actions">
+        <button id="confirm-cancel" class="btn btn-sm btn-outline-secondary">Annulla</button>
+        <button id="confirm-ok" class="btn btn-sm btn-danger">Conferma</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- OVERLAY SIDEBAR MOBILE -->
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+  <!-- HAMBURGER MOBILE -->
+  <button id="hamburger-btn" class="hamburger-btn" type="button">
+    <i class="fa-solid fa-bars"></i>
+  </button>
+
+  <div class="d-flex" style="min-height: 100vh;">
+
+
+    <!-- SIDEBAR -->
+    <aside id="app-sidebar" class="bg-black text-light p-3 d-flex flex-column" style="width:260px;">
+      <div class="text-center mb-4">
+        <img src="assets/Logo-Azienda.png" style="height:60px;" alt="Logo" />
+        <div class="app-version">v0.1.0</div>
+      </div>
+
+
+      <nav class="nav flex-column gap-2">
+        <button id="menu-home" class="btn btn-dark text-start sidebar-link active" type="button">
+          <i class="fa-solid fa-house me-2"></i> Home
+        </button>
+
+
+        <button id="menu-clienti" class="btn btn-dark text-start sidebar-link" type="button">
+          <i class="fa-solid fa-users me-2"></i> Gestione Clienti
+        </button>
+
+
+        <!-- Nuovo: Gestione Utenti -->
+        <button id="menu-utenti" class="btn btn-dark text-start sidebar-link" type="button">
+          <i class="fa-solid fa-user-gear me-2"></i> Gestione Utenti
+        </button>
+
+
+        <button class="btn btn-dark text-start sidebar-link disabled" type="button">
+          <i class="fa-solid fa-file-invoice me-2"></i> Fatturazione (prossimamente)
+        </button>
+
+
+        <button class="btn btn-dark text-start sidebar-link disabled" type="button">
+          <i class="fa-solid fa-gear me-2"></i> Impianti / Contratti (prossimamente)
+        </button>
+      </nav>
+
+
+      <!-- SEZIONE UTENTE LOGGATO + LOGOUT (in basso) -->
+      <div class="mt-auto pt-3">
+        <hr class="border-secondary mb-3" />
+
+
+        <div class="d-flex align-items-center small text-secondary mb-3" id="user-box">
+          <div class="me-2">
+            <i class="fa-solid fa-circle-user fa-lg"></i>
+          </div>
+          <div class="d-flex flex-column">
+            <span class="text-uppercase" style="font-size: 0.7rem;">Utente</span>
+            <span id="current-username" class="fw-semibold">–</span>
+          </div>
+        </div>
+
+
+        <button id="menu-logout" class="btn btn-outline-danger w-100" type="button">
+          <i class="fa-solid fa-right-from-bracket me-2"></i> Esci
+        </button>
+      </div>
+    </aside>
+
+
+    <!-- CONTENUTO -->
+    <main id="main-content" class="flex-grow-1 p-4"></main>
+  </div>
+
+
+  <!-- ========================================================= -->
+  <!-- TEMPLATE CLIENTI -->
+  <!-- ========================================================= -->
+  <template id="template-clienti">
+
+
+    <!-- HEADER MODULO CLIENTI -->
+    <div class="module-header mb-3">
+      <div>
+        <h2 class="module-title mb-1">Gestione Clienti</h2>
+        <div class="module-subtitle">
+          Anagrafica clienti · Inserimento · Modifica · Eliminazione
+        </div>
+      </div>
+    </div>
+
+
+    <div class="row g-4">
+
+
+      <!-- Elenco Clienti -->
+      <div class="col-lg-7">
+        <div class="card dark-card h-100">
+          <div class="card-header dark-card-header d-flex align-items-center justify-content-between">
+            <h5 class="mb-0">Elenco Clienti</h5>
+
+
+            <!-- PULSANTE NUOVO CLIENTE -->
+            <button id="btn-nuovo-cliente" type="button" class="btn btn-sm btn-primary">
+              <i class="fa-solid fa-plus me-2"></i> Nuovo Cliente
+            </button>
+          </div>
+
+
+          <div class="card-body dark-card-body">
+            <input
+              type="text"
+              id="filtro-clienti"
+              class="form-control dark-input mb-3"
+              placeholder="Cerca cliente..."
+            />
+
+
+            <div id="messaggi"></div>
+
+
+            <div class="table-responsive">
+              <table class="table dark-table align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Azienda</th>
+                    <th>P.IVA</th>
+                    <th>Email</th>
+                    <th>Città</th>
+                    <th>Codice Univoco</th>
+                    <th>Telefono</th>
+                    <th class="text-center">Azioni</th>
+                  </tr>
+                </thead>
+                <tbody id="clienti-tbody">
+                  <tr>
+                    <td colspan="8" class="text-center text-secondary">Caricamento clienti...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Form Nuovo Cliente -->
+      <div class="col-lg-5">
+        <div class="card dark-card h-100" id="box-form-cliente">
+          <div class="card-header dark-card-header">
+            <h5 id="form-titolo" class="mb-0">Nuovo Cliente</h5>
+          </div>
+
+
+          <div class="card-body dark-card-body">
+            <form id="cliente-form">
+
+
+              <input class="form-control dark-input mb-3" id="azienda" placeholder="Azienda *" required />
+              <input class="form-control dark-input mb-3" id="partitaIva" placeholder="Partita IVA *" required />
+              <input class="form-control dark-input mb-3" id="email" placeholder="Email" />
+              <input class="form-control dark-input mb-3" id="indirizzo" placeholder="Indirizzo" />
+
+
+              <div class="row">
+                <div class="col-4">
+                  <input class="form-control dark-input mb-3" id="cap" placeholder="CAP" />
+                </div>
+                <div class="col-8">
+                  <input class="form-control dark-input mb-3" id="citta" placeholder="Città" />
+                </div>
+              </div>
+
+
+              <input class="form-control dark-input mb-3" id="codiceUnivoco" placeholder="Codice Univoco *" required />
+              <input class="form-control dark-input mb-4" id="telefono" placeholder="Telefono" />
+
+
+              <!-- Bottoni Salva + Annulla -->
+              <div class="d-flex gap-2">
+                <button type="submit" id="salva-btn" class="btn btn-success flex-grow-1">
+                  <i class="fa-solid fa-floppy-disk me-2"></i> Salva Cliente
+                </button>
+                <button type="button" id="annulla-btn-cliente" class="btn btn-outline-secondary" style="display:none;">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+
+
+            </form>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+  </template>
+
+
+  <!-- ========================================================= -->
+  <!-- TEMPLATE UTENTI -->
+  <!-- ========================================================= -->
+  <template id="template-utenti">
+
+
+    <!-- HEADER MODULO UTENTI -->
+    <div class="module-header mb-3">
+      <div>
+        <h2 class="module-title mb-1">Gestione Utenti</h2>
+        <div class="module-subtitle">
+          Utenti di accesso · Ruoli · Attivazione / Disattivazione
+        </div>
+      </div>
+    </div>
+
+
+    <div class="row g-4">
+
+
+      <!-- Elenco Utenti -->
+      <div class="col-lg-7">
+        <div class="card dark-card h-100">
+          <div class="card-header dark-card-header d-flex align-items-center justify-content-between">
+            <h5 class="mb-0">Elenco Utenti</h5>
+
+
+            <button id="btn-nuovo-utente" type="button" class="btn btn-sm btn-primary">
+              <i class="fa-solid fa-user-plus me-2"></i> Nuovo Utente
+            </button>
+          </div>
+
+
+          <div class="card-body dark-card-body">
+            <input
+              type="text"
+              id="filtro-utenti"
+              class="form-control dark-input mb-3"
+              placeholder="Cerca utente..."
+            />
+
+
+            <div id="messaggi-utenti"></div>
+
+
+            <div class="table-responsive">
+              <table class="table dark-table align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Ruolo</th>
+                    <th>Attivo</th>
+                    <th class="text-center">Azioni</th>
+                  </tr>
+                </thead>
+                <tbody id="utenti-tbody">
+                  <tr>
+                    <td colspan="5" class="text-center text-secondary">Caricamento utenti...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Form Nuovo/Modifica Utente -->
+      <div class="col-lg-5">
+        <div class="card dark-card h-100" id="box-form-utente">
+          <div class="card-header dark-card-header">
+            <h5 id="form-utente-titolo" class="mb-0">Nuovo Utente</h5>
+          </div>
+
+
+          <div class="card-body dark-card-body">
+            <form id="utente-form">
+              <input
+                class="form-control dark-input mb-3"
+                id="utente-username"
+                placeholder="Username (può essere email) *"
+                required
+              />
+              <input
+                class="form-control dark-input mb-3"
+                id="utente-password"
+                type="password"
+                placeholder="Password *"
+                required
+              />
+
+
+              <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" id="utente-is-admin" />
+                <label class="form-check-label" for="utente-is-admin">Amministratore</label>
+              </div>
+
+
+              <div class="form-check form-switch mb-4">
+                <input class="form-check-input" type="checkbox" id="utente-is-active" checked />
+                <label class="form-check-label" for="utente-is-active">Attivo</label>
+              </div>
+
+
+              <!-- Bottoni Salva + Annulla -->
+              <div class="d-flex gap-2">
+                <button type="submit" id="utente-salva-btn" class="btn btn-success flex-grow-1">
+                  <i class="fa-solid fa-floppy-disk me-2"></i> Salva Utente
+                </button>
+                <button type="button" id="annulla-btn-utente" class="btn btn-outline-secondary" style="display:none;">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+  </template>
+
+
+  <!-- JS -->
+  <script src="app.js"></script>
+</body>
+</html>

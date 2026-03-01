@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>JB Consulenti - Login</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<!--
+===============================================================================
+JB Consulenti Gestionale - Pagina di Login
+File: login.html
+
+Responsabilità:
+- Mostra il form di accesso alla piattaforma gestionale.
+- Invia username e password al backend FastAPI (/auth/login).
+- Gestisce la risposta:
+  - Se le credenziali sono valide, salva token + info utente in localStorage
+    e reindirizza alla dashboard (index.html).
+  - Se non sono valide, mostra un messaggio di errore.
+
+Dipendenze:
+- styles.css  (stile dark condiviso con l’app)
+- Backend FastAPI in esecuzione su http://127.0.0.1:8001
+
+Note:
+- Il token è salvato come "jb_token" e "jb_token_type" in localStorage.
+- Il nome utente è salvato come "jb_user".
+- Il flag admin (se presente) è salvato come "jb_is_admin".
+- index.html (tramite app.js) controlla la presenza del token
+  e, se manca, rimanda a questa pagina di login.
+===============================================================================
+-->
+
+<body class="login-page">
+  <div class="login-card">
+    <div class="login-logo">
+      <img src="assets/Logo-Azienda.png" alt="JB Consulenti" />
+      <div class="login-logo-title">JB Consulenti</div>
+    </div>
+    <div class="login-subtitle">
+      Accesso alla piattaforma gestionale
+    </div>
+
+    <!-- Form di autenticazione -->
+    <form id="login-form">
+      <div class="login-form-group">
+        <label for="username">Utente</label>
+        <input type="text" id="username" required />
+      </div>
+
+      <div class="login-form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" required />
+      </div>
+
+      <button type="submit" class="login-btn" id="login-btn">Accedi</button>
+
+      <!-- Messaggio di errore credenziali -->
+      <p id="login-error" class="login-error" style="display:none;">
+        Credenziali non valide.
+      </p>
+    </form>
+  </div>
+
+  <script>
+    /**
+     * Configurazione base dell'endpoint API.
+     * In ambiente di produzione andrà adattato al dominio reale.
+     */
+    const API_URL = "/api";  // Prefisso API — funziona sia in locale che su Render
+
+    /**
+     * Inizializza la logica di login:
+     * - intercetta il submit del form
+     * - chiama l'endpoint /auth/login del backend FastAPI
+     * - gestisce errori di credenziali e problemi di rete
+     */
+    document.addEventListener("DOMContentLoaded", () => {
+      const form = document.getElementById("login-form");
+      const errorBox = document.getElementById("login-error");
+      const loginBtn = document.getElementById("login-btn");
+      const loginCard = document.querySelector(".login-card");
+
+      function setLoading(loading) {
+        if (loading) {
+          loginBtn.classList.add("loading");
+          loginBtn.innerHTML = '<span class="spinner"></span>Accesso in corso...';
+        } else {
+          loginBtn.classList.remove("loading");
+          loginBtn.textContent = "Accedi";
+        }
+      }
+
+      function shakeCard() {
+        loginCard.classList.remove("shake");
+        void loginCard.offsetWidth;
+        loginCard.classList.add("shake");
+      }
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        errorBox.style.display = "none";
+        setLoading(true);
+
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value;
+
+        try {
+          const res = await fetch(`${API_URL}/auth/login`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Accept": "application/json"
+            },
+            body: JSON.stringify({ username, password })
+          });
+
+          if (!res.ok) {
+            setLoading(false);
+            errorBox.textContent = "Credenziali non valide.";
+            errorBox.style.display = "block";
+            shakeCard();
+            return;
+          }
+
+          const data = await res.json();
+
+          localStorage.setItem("jb_token", data.access_token);
+          localStorage.setItem("jb_token_type", data.token_type || "bearer");
+
+          if (data.username) {
+            localStorage.setItem("jb_user", data.username);
+          } else {
+            localStorage.removeItem("jb_user");
+          }
+
+          if (typeof data.is_admin === "boolean") {
+            localStorage.setItem("jb_is_admin", data.is_admin ? "true" : "false");
+          } else {
+            localStorage.removeItem("jb_is_admin");
+          }
+
+          window.location.href = "index.html";
+        } catch (err) {
+          console.error("Errore login:", err);
+          setLoading(false);
+          errorBox.textContent = "Errore di connessione al server.";
+          errorBox.style.display = "block";
+          shakeCard();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
