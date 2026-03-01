@@ -253,7 +253,63 @@ cartesia/
 
 ---
 
-## 8. Contatti e supporto
+## 8. Ambiente di sviluppo locale
+
+### Prerequisiti
+
+- Python 3.11 o 3.12
+- PostgreSQL installato e attivo
+- Pipenv (`pip install pipenv`)
+
+### Database locale
+
+| Parametro | Valore |
+|-----------|--------|
+| **Database** | `jb_consulenti_db` |
+| **Utente** | `jb_user` |
+| **Password** | `password_sicura` |
+| **Host** | `localhost` |
+
+### Avvio del server
+
+```bash
+cd ~/jb-consulenti/backend
+/Users/marcos.orchetti/.local/share/virtualenvs/backend-HbhTxEWn/bin/uvicorn app.main:app --host 127.0.0.1 --port 8002 --reload
+```
+
+### Accesso locale
+
+| Parametro | Valore |
+|-----------|--------|
+| **URL** | `http://127.0.0.1:8002` |
+| **Username** | `admin` |
+| **Password** | `Admin123!` |
+
+### Comandi utili
+
+```bash
+# Eseguire migrazioni database
+cd ~/jb-consulenti/backend
+alembic upgrade head
+
+# Creare utente admin
+python create_admin.py
+```
+
+### Percorsi principali
+
+| Cosa | Percorso |
+|------|----------|
+| Progetto | `~/jb-consulenti/` |
+| Backend | `~/jb-consulenti/backend/` |
+| Frontend | `~/jb-consulenti/frontend/` |
+| Virtualenv | `~/.local/share/virtualenvs/backend-HbhTxEWn/` |
+| Uploads foto | `~/jb-consulenti/uploads/` |
+| Repo GitHub | `github.com/MarcoSorchetti/cartesia` |
+
+---
+
+## 9. Contatti e supporto
 
 **Sviluppo:** Gia.Mar Srl
 **Responsabile Progetto:** Marco Sorchetti
