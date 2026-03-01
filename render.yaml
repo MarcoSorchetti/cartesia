@@ -19,5 +19,4 @@ services:
 
 databases:
   - name: jb-db
-    plan: starter
-    region: frankfurt
+    plan: basic_256mb
